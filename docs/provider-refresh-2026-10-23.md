@@ -42,3 +42,9 @@ See [the integration guide](../.agents/skills/provider-refresh-oct23/SKILL.md) f
 - After updating those tests, a final rerun of all affected modules and provider regressions passed: **179 passed** (includes all five previously failing cases and 28 new provider tests).
 - Required compilation checks passed; all changed/new Python files compiled. `git diff --check` passed.
 - The complete suite was not rerun a second time after the test-fixture updates; the affected modules were rerun in full.
+
+## Integration with latest main
+
+Merged origin/main `0f191f96` and resolved the four overlapping Gemini Omni conflicts by retaining main's stable adapter, stricter request validation, usage-based pricing, download recovery, documentation, and expanded tests. Provider-refresh additions remain intact.
+
+Post-merge validation: **218 passed**, covering Gemini Omni, the new providers, Google/ElevenLabs migrations, cache identity, and phase-three registry contracts. Python compilation and staged diff checks also passed.
