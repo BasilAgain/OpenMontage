@@ -842,7 +842,7 @@ To select the Gemini backend through the governed `image_selector`, pass
 
 | Model | Price | Notes |
 |-------|-------|-------|
-| `gemini-omni-flash-preview` | ~$0.10 per second of video | Billed as 5,792 output tokens/sec of 720p video at $17.50/1M tokens |
+| `gemini-omni-1.1-flash` | Obtain current pricing | Replaces the retired Gemini Omni preview |
 
 Generates 3–10 second clips at 720p/24fps with synthesized audio, plus stateful conversational editing (`edit_video` via `previous_interaction_id`). **Paid tier only — no free tier.** A typical 8-second clip costs ~$0.80; each edit turn generates a new clip and bills again.
 
@@ -1500,3 +1500,21 @@ A: For quality → ElevenLabs. For localization (50+ languages) → Google TTS. 
 
 **Q: Do I need all these providers?**
 A: No. Start with what you have. The selector pattern auto-routes to whatever's available. Missing a provider? The system falls through to the next one automatically.
+
+## October 23, 2026 additions and migrations
+
+See [the current integration guide](../.agents/skills/provider-refresh-oct23/SKILL.md)
+for exact tool/model/host selection, setup, limitations, and primary sources.
+
+Added HeyGen Voice1/Turbo/Free and catalog TTS, timing-preserving HeyGen conversion,
+xAI narration TTS, Voxtral3 TTS/STT, MAI Voice2.1/Flash, ElevenLabs video soundtracks,
+Nano Banana2.1 (Google/fal/Replicate), FLUX3 Image (BFL/fal/Replicate), FLUX3 Max video
+(fal), Vidu Q4 (fal), Grok Imagine1.5/Lite, Fibo2 (Bria/fal), MAI Image2.6/Flash,
+and separate realtime transports for Grok Voice3, Eleven Realtime Mini/Max, and
+MAI streaming transcription. No Kling4 or realtime translation integration.
+
+Gemini Omni uses gemini-omni-1.1-flash. Retired Gemini Veo/Imagen calls fail with
+migration guidance; Vertex and aggregator routes are handled separately.
+Eleven v4 now uses the dialogue contract and Turbo uses its WebSocket transport.
+New provider availability is credential-based, not a live entitlement check.
+Pricing requires current quotes except the explicitly dated HeyGen free promotion.

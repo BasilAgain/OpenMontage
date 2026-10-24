@@ -37,7 +37,7 @@ from tools.base_tool import (
 
 _BASE_URL = "https://generativelanguage.googleapis.com/v1beta"
 _UPLOAD_URL = "https://generativelanguage.googleapis.com/upload/v1beta/files"
-_DEFAULT_MODEL = "gemini-omni-flash-preview"
+_DEFAULT_MODEL = "gemini-omni-1.1-flash"
 # Billed at 5,792 output tokens per second of 720p video, $17.50/1M tokens
 # (ai.google.dev/gemini-api/docs/pricing) — effectively ~$0.10 per second.
 _COST_PER_SECOND = 0.10
@@ -65,7 +65,12 @@ class GeminiOmniVideo(BaseTool):
     )
     agent_skills = ["gemini-omni", "ai-video-gen"]
 
-    capabilities = ["text_to_video", "image_to_video", "reference_to_video", "edit_video"]
+    capabilities = [
+        "text_to_video",
+        "image_to_video",
+        "reference_to_video",
+        "edit_video",
+    ]
     supports = {
         "text_to_video": True,
         "image_to_video": True,
@@ -112,7 +117,12 @@ class GeminiOmniVideo(BaseTool):
             },
             "operation": {
                 "type": "string",
-                "enum": ["text_to_video", "image_to_video", "reference_to_video", "edit_video"],
+                "enum": [
+                    "text_to_video",
+                    "image_to_video",
+                    "reference_to_video",
+                    "edit_video",
+                ],
                 "default": "text_to_video",
             },
             "aspect_ratio": {
@@ -165,8 +175,15 @@ class GeminiOmniVideo(BaseTool):
     resource_profile = ResourceProfile(
         cpu_cores=1, ram_mb=512, vram_mb=0, disk_mb=500, network_required=True
     )
-    retry_policy = RetryPolicy(max_retries=1, retryable_errors=["rate_limit", "timeout"])
-    idempotency_key_fields = ["prompt", "operation", "aspect_ratio", "previous_interaction_id"]
+    retry_policy = RetryPolicy(
+        max_retries=1, retryable_errors=["rate_limit", "timeout"]
+    )
+    idempotency_key_fields = [
+        "prompt",
+        "operation",
+        "aspect_ratio",
+        "previous_interaction_id",
+    ]
     side_effects = [
         "writes video file to output_path",
         "calls the Gemini Interactions API",
@@ -290,9 +307,13 @@ class GeminiOmniVideo(BaseTool):
         for step in data.get("steps") or []:
             for item in step.get("content") or []:
                 if isinstance(item, dict) and (item.get("data") or item.get("uri")):
-                    if "video" in str(item.get("type", "")).lower() or item.get("mime_type", "").startswith("video/"):
+                    if "video" in str(item.get("type", "")).lower() or item.get(
+                        "mime_type", ""
+                    ).startswith("video/"):
                         return item
-                    if item.get("data") or str(item.get("uri", "")).startswith("files/"):
+                    if item.get("data") or str(item.get("uri", "")).startswith(
+                        "files/"
+                    ):
                         return item
         return None
 
@@ -308,7 +329,7 @@ class GeminiOmniVideo(BaseTool):
         path = uri.split("?", 1)[0].rstrip("/")
         marker = "files/"
         idx = path.rfind(marker)
-        tail = path[idx + len(marker):] if idx != -1 else path.split("/")[-1]
+        tail = path[idx + len(marker) :] if idx != -1 else path.split("/")[-1]
         return tail.split(":", 1)[0]
 
     def _download_via_uri(self, requests_mod: Any, api_key: str, uri: str) -> bytes:
@@ -325,9 +346,13 @@ class GeminiOmniVideo(BaseTool):
             if state == "ACTIVE":
                 break
             if state == "FAILED":
-                raise RuntimeError("Gemini Omni video generation failed during processing")
+                raise RuntimeError(
+                    "Gemini Omni video generation failed during processing"
+                )
             if time.time() > deadline:
-                raise TimeoutError("Timed out waiting for Gemini Omni video to become ACTIVE")
+                raise TimeoutError(
+                    "Timed out waiting for Gemini Omni video to become ACTIVE"
+                )
             time.sleep(_POLL_INTERVAL_SECONDS)
 
         download_resp = requests_mod.get(
@@ -344,7 +369,8 @@ class GeminiOmniVideo(BaseTool):
         if not api_key:
             return ToolResult(
                 success=False,
-                error="GEMINI_API_KEY / GOOGLE_API_KEY not set. " + self.install_instructions,
+                error="GEMINI_API_KEY / GOOGLE_API_KEY not set. "
+                + self.install_instructions,
             )
 
         import requests
@@ -355,7 +381,11 @@ class GeminiOmniVideo(BaseTool):
         aspect_ratio = inputs.get("aspect_ratio", "16:9")
         previous_interaction_id = inputs.get("previous_interaction_id")
 
-        if operation == "edit_video" and not previous_interaction_id and not inputs.get("input_video_path"):
+        if (
+            operation == "edit_video"
+            and not previous_interaction_id
+            and not inputs.get("input_video_path")
+        ):
             return ToolResult(
                 success=False,
                 error="edit_video requires previous_interaction_id (edit a generated clip) or input_video_path (edit an uploaded clip)",
@@ -364,7 +394,10 @@ class GeminiOmniVideo(BaseTool):
         reference_paths = list(inputs.get("reference_image_paths") or [])
         if inputs.get("reference_image_path"):
             reference_paths.insert(0, inputs["reference_image_path"])
-        if operation in {"image_to_video", "reference_to_video"} and not reference_paths:
+        if (
+            operation in {"image_to_video", "reference_to_video"}
+            and not reference_paths
+        ):
             return ToolResult(
                 success=False,
                 error=f"{operation} requires reference_image_path or reference_image_paths",
@@ -373,16 +406,22 @@ class GeminiOmniVideo(BaseTool):
         try:
             parts: list[dict[str, Any]] = [self._image_part(p) for p in reference_paths]
             if inputs.get("input_video_path"):
-                video_uri = self._upload_video_file(requests, api_key, inputs["input_video_path"])
+                video_uri = self._upload_video_file(
+                    requests, api_key, inputs["input_video_path"]
+                )
                 parts.append({"type": "document", "uri": video_uri})
         except Exception as e:
-            return ToolResult(success=False, error=f"Gemini Omni input preparation failed: {e}")
+            return ToolResult(
+                success=False, error=f"Gemini Omni input preparation failed: {e}"
+            )
 
         payload: dict[str, Any] = {
             "model": _DEFAULT_MODEL,
             # Plain string for text-only turns (the documented minimal form),
             # typed parts when images or an uploaded video ride along.
-            "input": prompt if not parts else parts + [{"type": "text", "text": prompt}],
+            "input": (
+                prompt if not parts else parts + [{"type": "text", "text": prompt}]
+            ),
             # uri delivery avoids the ~4MB inline-payload ceiling; inline data in
             # the response is still handled below if the API returns it anyway.
             "response_format": {
@@ -422,13 +461,17 @@ class GeminiOmniVideo(BaseTool):
             if video.get("data"):
                 video_bytes = base64.b64decode(video["data"])
             else:
-                video_bytes = self._download_via_uri(requests, api_key, str(video["uri"]))
+                video_bytes = self._download_via_uri(
+                    requests, api_key, str(video["uri"])
+                )
 
             output_path = Path(inputs.get("output_path", "gemini_omni_output.mp4"))
             output_path.parent.mkdir(parents=True, exist_ok=True)
             output_path.write_bytes(video_bytes)
         except Exception as e:
-            return ToolResult(success=False, error=f"Gemini Omni video generation failed: {e}")
+            return ToolResult(
+                success=False, error=f"Gemini Omni video generation failed: {e}"
+            )
 
         editable = inputs.get("store") is not False
         return ToolResult(

@@ -1,7 +1,7 @@
 ---
 name: gemini-omni
 description: |
-  Generate and conversationally edit short videos with Google Gemini Omni Flash (`gemini-omni-flash-preview`). Use when: (1) iterating on a clip with natural-language edits instead of regenerating ("make the phone invisible, keep everything else the same"), (2) generating 3-10s 720p clips with synthesized audio, rendered on-screen text, or timecoded beats, (3) binding reference images to roles with <FIRST_FRAME>/<IMAGE_REF_N> prompt tags, (4) editing an existing uploaded video. Accessed via the `gemini_omni_video` tool using the project's GEMINI_API_KEY/GOOGLE_API_KEY — the same key as Imagen and Google TTS.
+  Generate and conversationally edit short videos with Google Gemini Omni Flash (`gemini-omni-1.1-flash`). Use when: (1) iterating on a clip with natural-language edits instead of regenerating ("make the phone invisible, keep everything else the same"), (2) generating 3-10s 720p clips with synthesized audio, rendered on-screen text, or timecoded beats, (3) binding reference images to roles with <FIRST_FRAME>/<IMAGE_REF_N> prompt tags, (4) editing an existing uploaded video. Accessed via the `gemini_omni_video` tool using the project's GEMINI_API_KEY/GOOGLE_API_KEY — the same key as Imagen and Google TTS.
 allowed-tools: Bash, Read, Write
 metadata:
   openclaw:
@@ -13,7 +13,7 @@ metadata:
 
 # Gemini Omni Flash (Google DeepMind)
 
-Gemini Omni is Google DeepMind's video generation **and editing** model family, announced at I/O 2026. The first model, **Gemini Omni Flash** (`gemini-omni-flash-preview`, developer access since June 30, 2026), generates 3-10 second clips at 720p/24fps with synthesized audio via the Gemini **Interactions API**. Its differentiator in the OpenMontage fleet is **stateful conversational editing**: each generation returns an `interaction_id`, and a follow-up call with `previous_interaction_id` edits that video in place — no other wrapped provider can refine a clip without regenerating it.
+Gemini Omni is Google DeepMind's video generation **and editing** model family, announced at I/O 2026. The first model, **Gemini Omni Flash** (`gemini-omni-1.1-flash`, current GA model; preview retired October 22, 2026), generates 3-10 second clips at 720p/24fps with synthesized audio via the Gemini **Interactions API**. Its differentiator in the OpenMontage fleet is **stateful conversational editing**: each generation returns an `interaction_id`, and a follow-up call with `previous_interaction_id` edits that video in place — no other wrapped provider can refine a clip without regenerating it.
 
 OpenMontage wraps it as `gemini_omni_video` (native Gemini API, no gateway). It shares `GOOGLE_API_KEY`/`GEMINI_API_KEY` with `google_imagen` and `google_tts` — one key, three capabilities. Paid tier only: ~$0.10 per second of output video (billed as 5,792 output tokens/sec at $17.50/1M).
 
