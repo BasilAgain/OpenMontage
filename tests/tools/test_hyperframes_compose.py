@@ -1134,6 +1134,22 @@ def test_style_bridge_picks_up_playbook_palette():
     assert "neon-test" in design
 
 
+def test_style_bridge_maps_editorial_playbook_canonical_keys():
+    from styles.playbook_loader import load_playbook
+    from lib.hyperframes_style_bridge import style_bridge
+
+    css, design = style_bridge(load_playbook("editorial-data-explainer"), None)
+    palette = load_playbook("editorial-data-explainer")["visual_language"]["color_palette"]
+
+    assert css["--color-bg"] == palette["background"]
+    assert css["--color-fg"] == palette["text"]
+    assert css["--color-muted"] == palette["muted"]
+    assert css["--background-effect"] == "flat"
+    assert css["--chart-1"] == "#E8C34A"
+    assert "--chart-2" in css
+    assert "flat" in design.lower()
+
+
 def test_style_bridge_edit_decision_override_wins():
     from lib.hyperframes_style_bridge import style_bridge
 

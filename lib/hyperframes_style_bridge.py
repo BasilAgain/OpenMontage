@@ -22,6 +22,7 @@ from typing import Any
 _FALLBACK_CSS_VARS = {
     "--color-bg": "#0B0F1A",
     "--color-fg": "#F5F5F5",
+    "--background-effect": "ambient",
     "--color-accent": "#F59E0B",
     "--color-primary": "#2563EB",
     "--color-secondary": "#10B981",
@@ -102,7 +103,10 @@ def style_bridge(
         primary = _first(palette.get("primary"), css["--color-primary"])
         secondary = _first(palette.get("secondary"), css["--color-secondary"])
         surface = _first(palette.get("surface"), css["--color-surface"])
-        muted = _first(palette.get("muted_text"), css["--color-muted"])
+        # Canonical schema key first; keep reading the legacy alias.
+        muted = _first(palette.get("muted"), _first(palette.get("muted_text"), css["--color-muted"]))
+        background_effect = str(vl.get("background_effect") or css["--background-effect"])
+        chart_palette = playbook.get("chart_palette") or []
 
         duration, ease = _motion_easing(motion)
 
@@ -115,11 +119,18 @@ def style_bridge(
                 "--color-secondary": secondary,
                 "--color-surface": surface,
                 "--color-muted": muted,
-                "--font-heading": _font(typo, "heading", css["--font-heading"]),
+                "--background-effect": background_effect,
+                # Canonical schema keys; the legacy `heading` alias still resolves.
+                "--font-heading": _font(typo, "headings", _font(typo, "heading", css["--font-heading"])),
                 "--font-body": _font(typo, "body", css["--font-body"]),
                 "--font-mono": _font(typo, "code", css["--font-mono"]),
                 "--ease-primary": ease,
                 "--duration-entrance": duration,
+                # Chart colors become numbered tokens, `--chart-1` … `--chart-N`.
+                **{
+                    f"--chart-{i + 1}": str(color)
+                    for i, color in enumerate(chart_palette)
+                },
             }
         )
 
@@ -153,6 +164,7 @@ def _render_design_md(
         "## Colors",
         "",
         f"- Background: `{css['--color-bg']}`",
+        f"- Background effect: `{css['--background-effect']}`",
         f"- Foreground: `{css['--color-fg']}`",
         f"- Primary: `{css['--color-primary']}`",
         f"- Accent: `{css['--color-accent']}`",
@@ -165,6 +177,7 @@ def _render_design_md(
         f"- Heading: `{css['--font-heading']}`",
         f"- Body: `{css['--font-body']}`",
         f"- Mono: `{css['--font-mono']}`",
+        f"- Chart palette: {', '.join(f'`{css[k]}` ({k})' for k in sorted(css) if k.startswith('--chart-')) or 'none declared'}",
         "",
         "## Motion",
         "",
