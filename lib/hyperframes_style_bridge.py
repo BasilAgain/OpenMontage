@@ -95,7 +95,7 @@ def style_bridge(
         vl = playbook.get("visual_language", {}) or {}
         palette = vl.get("color_palette", {}) or {}
         typo = playbook.get("typography", {}) or {}
-        motion = playbook.get("motion", {}) or {}
+        identity = playbook.get("identity", {}) or {}
 
         bg = _first(palette.get("background"), css["--color-bg"])
         fg = _first(palette.get("text"), css["--color-fg"])
@@ -103,12 +103,12 @@ def style_bridge(
         primary = _first(palette.get("primary"), css["--color-primary"])
         secondary = _first(palette.get("secondary"), css["--color-secondary"])
         surface = _first(palette.get("surface"), css["--color-surface"])
-        # Canonical schema key first; keep reading the legacy alias.
-        muted = _first(palette.get("muted"), _first(palette.get("muted_text"), css["--color-muted"]))
+        muted = _first(palette.get("muted"), css["--color-muted"])
         background_effect = str(vl.get("background_effect") or css["--background-effect"])
         chart_palette = playbook.get("chart_palette") or []
 
-        duration, ease = _motion_easing(motion)
+        # The schema stores pace under identity, not motion.
+        duration, ease = _motion_easing({"pace": identity.get("pace", "moderate")})
 
         css.update(
             {
@@ -120,8 +120,7 @@ def style_bridge(
                 "--color-surface": surface,
                 "--color-muted": muted,
                 "--background-effect": background_effect,
-                # Canonical schema keys; the legacy `heading` alias still resolves.
-                "--font-heading": _font(typo, "headings", _font(typo, "heading", css["--font-heading"])),
+                "--font-heading": _font(typo, "headings", css["--font-heading"]),
                 "--font-body": _font(typo, "body", css["--font-body"]),
                 "--font-mono": _font(typo, "code", css["--font-mono"]),
                 "--ease-primary": ease,

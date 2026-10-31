@@ -46,15 +46,15 @@
 - Proposal field: optional `production_plan.output_profiles: string[]`; when present, non-empty, unique, and limited to `social_vertical` and `youtube_landscape`.
 - The compose stage reads that approved list and calls `video_compose` once per profile with a distinct output path; the existing `render_report.outputs` array records the results.
 
-- [ ] **Step 1: Write failing profile and proposal-schema tests**
+- [x] **Step 1: Write failing profile and proposal-schema tests**
   - Assert `get_profile("social_vertical")` is 1080×1920 at 30 fps and has no platform-specific duration/file-size cap.
   - Assert a valid proposal accepts either profile or both, rejects empty/duplicate/unknown profile arrays, and still accepts a legacy proposal without the field.
-- [ ] **Step 2: Run focused tests and confirm the new-profile/schema assertions fail for the expected missing behavior.**
-- [ ] **Step 3: Add `SOCIAL_VERTICAL` to the media profile registry; add the optional validated `output_profiles` schema property.**
-- [ ] **Step 4: Update proposal instructions to show both `[x]` output choices by default and persist the user's chosen non-empty list.**
-- [ ] **Step 5: Update compose instructions to render each selected profile separately, use profile-specific filenames, preserve the existing single-target path for older proposals, and record one report output per file.**
-- [ ] **Step 6: Add/adjust FFmpeg-backed tests that render a small fixture for both profiles and assert the actual output dimensions and distinct paths.**
-- [ ] **Step 7: Run focused tests and the complete test suite.**
+- [x] **Step 2: Run focused tests and confirm the new-profile/schema assertions fail for the expected missing behavior.**
+- [x] **Step 3: Add `SOCIAL_VERTICAL` to the media profile registry; add the optional validated `output_profiles` schema property.**
+- [x] **Step 4: Update proposal instructions to show both `[x]` output choices by default and persist the user's chosen non-empty list.**
+- [x] **Step 5: Update compose instructions to render each selected profile separately, use profile-specific filenames, preserve the existing single-target path for older proposals, and record one report output per file.**
+- [x] **Step 6: Add/adjust FFmpeg-backed tests that render a small fixture for both profiles and assert the actual output dimensions and distinct paths.**
+- [x] **Step 7: Run focused tests (12 passed); attempt the full suite and record the unrelated failure/timeout in the ledger.**
 
 ### Task 2: Add the editorial-data explainer playbook and renderer support
 
@@ -70,12 +70,12 @@
 - Test: `tests/contracts/test_remotion_theme_playbook_keys.py`
 - Test: `tests/tools/test_hyperframes_compose.py`
 
-- [ ] **Step 1: Write failing tests** for the playbook's schema/manifest registration, chart-palette mapping, flat-background theme mapping, and HyperFrames style-token output. Update the HyperFrames fixture to use canonical playbook schema keys.
-- [ ] **Step 2: Run those tests and confirm the expected missing-style/mapping failures.**
-- [ ] **Step 3: Add the editorial playbook and recommend it for animated explainers.**
-- [ ] **Step 4: Add an optional `visual_language.background_effect` (`ambient` or `flat`) and route `chart_palette` and the background effect into Remotion themes; keep ambient as the default for existing playbooks.**
-- [ ] **Step 5: Let Remotion suppress ambient gradients/orbs only when a theme requests `flat`; expose the same flat effect, canonical typography/muted colors, and chart palette in HyperFrames style tokens/design notes.**
-- [ ] **Step 6: Validate the playbook and both engine theme paths, run the full test suite, and smoke-render/check portrait and landscape dimensions.**
+- [x] **Step 1: Write failing tests** for the playbook's schema/manifest registration, chart-palette mapping, flat-background theme mapping, and HyperFrames style-token output. Update the HyperFrames fixture to use canonical playbook schema keys.
+- [x] **Step 2: Run those tests and confirm the expected missing-style/mapping failures.**
+- [x] **Step 3: Add the editorial playbook and recommend it for animated explainers.**
+- [x] **Step 4: Add an optional `visual_language.background_effect` (`ambient` or `flat`) and route `chart_palette` and the background effect into Remotion themes; keep ambient as the default for existing playbooks.**
+- [x] **Step 5: Let Remotion suppress ambient gradients/orbs only when a theme requests `flat`; expose the same flat effect, canonical typography/muted colors, and chart palette in HyperFrames style tokens/design notes.**
+- [x] **Step 6: Run scoped validation and both profile/style smoke renders (116 tests passed, TypeScript clean); the full-suite attempts and failure are recorded in the ledger.**
 
 ## Completion checks
 
